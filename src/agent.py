@@ -33,10 +33,9 @@ class Agent:
         # Get the list of available engines.
         engines: list[Engine] = openai.Engine.list().data
         # Ensure the user's selected engine is available.
-        # pylint: disable=unnecessary-comprehension
-        if engine not in [i.id for i in engines]:
+        if engine not in [e.id for e in engines]:
             InvalidEngineException(f'Invalid engine: {engine}. Valid engines '
-                                   f'are: {[id for id in engines.id]}')
+                                   f'are: {[e.id for e in engines]}')
 
         # Set instance attributes.
         self.function = function
