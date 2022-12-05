@@ -1,3 +1,5 @@
+[![CodeQL](https://github.com/WhatTheFuzz/binaryninja-openai/actions/workflows/codeql.yml/badge.svg)](https://github.com/WhatTheFuzz/binaryninja-openai/actions/workflows/codeql.yml)
+
 # BinaryNinja-OpenAI
 
 Integrates OpenAI with BinaryNinja via a plugin.
