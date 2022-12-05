@@ -1,2 +1,3 @@
 # binaryninja-openai
-Itegrates OpenAI with BinaryNinja via a plugin.
+
+Integrates OpenAI with BinaryNinja via a plugin.
