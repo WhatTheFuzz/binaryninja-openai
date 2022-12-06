@@ -15,6 +15,11 @@ from .exceptions import InvalidEngineException
 
 class Agent:
 
+    question: str = '''
+    This is a function that was decompiled with Binary Ninja.
+    It is in Binary Ninja's IL_FORM. What does this function do?
+    '''
+
     # The maximum number of tokens that can be submitted to the engine.
     # See: https://beta.openai.com/docs/models/codex
     codex_limits: dict[str, int] = {
@@ -82,11 +87,9 @@ class Agent:
         '''Generates a query string given a BNIL function. Reads the file
         prompt.txt and replaces the IL form with the name of the IL form.
         '''
-        prompt: str = ''
+        prompt: str = self.question
         # Read the prompt from the text file.
-        with open('prompt.txt', 'r') as prompt_file:
-            prompt = prompt_file.read()
-            prompt.replace('\{IL FORM\}', self.il_name[type(function)])
+        prompt = self.question.replace('IL_FORM', self.il_name[type(function)])
         # Add some new lines. Maybe not necessary.
         prompt += '\n\n'
         # Add the instructions to the prompt.
