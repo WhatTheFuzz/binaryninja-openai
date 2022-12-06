@@ -8,19 +8,32 @@ from binaryninja.lowlevelil import LowLevelILFunction
 from binaryninja.mediumlevelil import MediumLevelILFunction
 from binaryninja.highlevelil import HighLevelILFunction
 
+from typing import Optional
+
 from .exceptions import InvalidEngineException
 
 
 class Agent:
 
-    def ___init__(self, function: LowLevelILFunction | MediumLevelILFunction |
+    # The maximum number of tokens that can be submitted to the engine.
+    # See: https://beta.openai.com/docs/models/codex
+    codex_limits: dict[str, int] = {
+        'code-davinci-002': 8_000,
+        'code-cushman-001': 2_048
+    }
+
+    # A mapping of IL forms to their names.
+    il_name: dict[type, str] = {
+        LowLevelILFunction: 'Low Level Intermediate Language',
+        MediumLevelILFunction: 'Medium Level Intermediate Language',
+        HighLevelILFunction: 'High Level Intermediate Language'
+    }
+
+    def __init__(self, function: LowLevelILFunction | MediumLevelILFunction |
                                   HighLevelILFunction, engine: str) -> None:
 
         # Read the API key from the environment variable.
-        openai.api_key = os.getenv('OPENAI_API_KEY')
-        if openai.api_key is None:
-            raise APIError('No API key found. Please set the environment '
-                           'variable OPENAI_API_KEY to your API key.')
+        openai.api_key = self.read_api_key('/Users/sean/.openai/api_key')
 
         # Ensure that a function type was passed in.
         if not isinstance(
@@ -41,6 +54,17 @@ class Agent:
         self.function = function
         self.engine = engine
 
+    def read_api_key(self, filename: Optional[str]=None) -> str:
+        if os.getenv('OPENAI_API_KEY'):
+            return os.getenv('OPENAI_API_KEY')
+        elif filename:
+            with open(filename, 'r') as api_key_file:
+                return api_key_file.read()
+        else:
+            raise APIError('No API key found. Please set the environment '
+                           'variable OPENAI_API_KEY to your API key.')
+
+
     def instruction_list(self, function: LowLevelILFunction |
                                          MediumLevelILFunction |
                                          HighLevelILFunction) -> list[str]:
@@ -51,3 +75,20 @@ class Agent:
         for instruction in function.instructions:
             instructions.append(str(instruction))
         return instructions
+
+    def generate_query(self, function: LowLevelILFunction |
+                                       MediumLevelILFunction |
+                                       HighLevelILFunction) -> str:
+        '''Generates a query string given a BNIL function. Reads the file
+        prompt.txt and replaces the IL form with the name of the IL form.
+        '''
+        prompt: str = ''
+        # Read the prompt from the text file.
+        with open('prompt.txt', 'r') as prompt_file:
+            prompt = prompt_file.read()
+            prompt.replace('\{IL FORM\}', self.il_name[type(function)])
+        # Add some new lines. Maybe not necessary.
+        prompt += '\n\n'
+        # Add the instructions to the prompt.
+        prompt += '\n'.join(self.instruction_list(function))
+        return prompt
