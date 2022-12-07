@@ -1,4 +1,6 @@
 import os
+from typing import Optional, Union
+from pathlib import Path
 
 import openai
 from openai.api_resources.engine import Engine
@@ -7,8 +9,6 @@ from openai.error import APIError
 from binaryninja.lowlevelil import LowLevelILFunction
 from binaryninja.mediumlevelil import MediumLevelILFunction
 from binaryninja.highlevelil import HighLevelILFunction
-
-from typing import Optional
 
 from .exceptions import InvalidEngineException
 
@@ -20,13 +20,6 @@ class Agent:
     It is in Binary Ninja's IL_FORM. What does this function do?
     '''
 
-    # The maximum number of tokens that can be submitted to the engine.
-    # See: https://beta.openai.com/docs/models/codex
-    codex_limits: dict[str, int] = {
-        'code-davinci-002': 8_000,
-        'code-cushman-001': 2_048
-    }
-
     # A mapping of IL forms to their names.
     il_name: dict[type, str] = {
         LowLevelILFunction: 'Low Level Intermediate Language',
@@ -34,11 +27,13 @@ class Agent:
         HighLevelILFunction: 'High Level Intermediate Language'
     }
 
-    def __init__(self, function: LowLevelILFunction | MediumLevelILFunction |
-                                  HighLevelILFunction, engine: str) -> None:
+    def __init__(self,
+                function: Union[LowLevelILFunction, MediumLevelILFunction, HighLevelILFunction],
+                engine: str,
+                path_to_api_key: Optional[Path]=None) -> None:
 
         # Read the API key from the environment variable.
-        openai.api_key = self.read_api_key('/Users/sean/.openai/api_key')
+        openai.api_key = self.read_api_key(path_to_api_key)
 
         # Ensure that a function type was passed in.
         if not isinstance(
@@ -59,20 +54,20 @@ class Agent:
         self.function = function
         self.engine = engine
 
-    def read_api_key(self, filename: Optional[str]=None) -> str:
+    def read_api_key(self, filename: Optional[Path]=None) -> str:
         if os.getenv('OPENAI_API_KEY'):
             return os.getenv('OPENAI_API_KEY')
-        elif filename:
-            with open(filename, 'r') as api_key_file:
+        if filename:
+            with open(filename, mode='r', encoding='ascii') as api_key_file:
                 return api_key_file.read()
         else:
             raise APIError('No API key found. Please set the environment '
                            'variable OPENAI_API_KEY to your API key.')
 
 
-    def instruction_list(self, function: LowLevelILFunction |
-                                         MediumLevelILFunction |
-                                         HighLevelILFunction) -> list[str]:
+    def instruction_list(self, function: Union[LowLevelILFunction,
+                                         MediumLevelILFunction,
+                                         HighLevelILFunction]) -> list[str]:
         '''Generates a list of instructions in string representation given a
         BNIL function.
         '''
@@ -81,9 +76,9 @@ class Agent:
             instructions.append(str(instruction))
         return instructions
 
-    def generate_query(self, function: LowLevelILFunction |
-                                       MediumLevelILFunction |
-                                       HighLevelILFunction) -> str:
+    def generate_query(self, function: Union[LowLevelILFunction,
+                                       MediumLevelILFunction,
+                                       HighLevelILFunction]) -> str:
         '''Generates a query string given a BNIL function. Reads the file
         prompt.txt and replaces the IL form with the name of the IL form.
         '''
@@ -95,3 +90,13 @@ class Agent:
         # Add the instructions to the prompt.
         prompt += '\n'.join(self.instruction_list(function))
         return prompt
+
+    def send_query(self, query: str) -> str:
+        '''Sends a query to the engine and returns the response.'''
+        response: str = openai.Completion.create(
+            model=self.engine,
+            prompt=query,
+            max_tokens=2_048
+        )
+        return response.choices[0].text
+
