@@ -10,9 +10,73 @@ If you're installing this as a standalone plugin, you can place (or sym-link)
 this in BinaryNinja's plugin path. Default paths are detailed on
 [Vector 35's documentation][default-plugin-dir].
 
+## API Key
+
+This requires an [API token from OpenAI][token]. The plugin checks for the API
+key in two ways (in this order).
+
+First, it checks the environment variable `OPENAI_API_KEY`, which you can set
+inside of Binary Ninja's Python console like so:
+
+```python
+import os
+os.environ["OPENAI_API_KEY"] = "INSERT KEY HERE"
+```
+
+Or you can write it to a file. The file is set in [entry.py][entry] and is a
+parameter to the Agent class. By default it checks for the file
+`~/.openai/api_key.txt`. You can add your API token like so:
+
+```shell
+mkdir ~/.openai
+echo -n "INSERT KEY HERE" > ~/.openai/api_key.txt
+```
+
+Note that if you have both set, the plugin defaults to the environment variable.
+If your API token is invalid, you'll receive the following error:
+
+```python
+openai.error.AuthenticationError: Incorrect API key provided: <BAD KEY HERE>.
+You can find your API key at https://beta.openai.com.
+```
+
+## Usage
+
+After installation, you can right-click on any function in Binary Ninja and
+select `Plugins > OpenAI > What Does this Function Do (HLIL)?`. Alternatively,
+select a function in Binary Ninja (by clicking on any instruction in the
+function) and use the menu bar options
+`Plugins > OpenAI > What Does this Function Do (HLIL)?`. If your cursor has
+anything else selected other than an instruction inside a function, `OpenAI`
+will not appear as a selection inside the `Plugins` menu. This can happen if
+you've selected data or instructions that Binary Ninja determined did not belong
+inside of the function.
+
+The output will appear in Binary Ninja's Log like so:
+
+![The output of running the plugin.](./resources/output.png)
+
+## OpenAI Model
+
+By default, the plugin uses the `text-davinci-003` model, you can tweak this
+inside of [entry.py][entry].
+
+## Known Issues
+
+The query does not use Python's [asyncio][asyncio] and thus blocks the main
+thread. You may be unable to interact with the Binary Ninja UI while the query
+is waiting to be resolved. In some cases, your operating system may detect that
+Binary Ninja has stopped responding and ask you to Force Quit it. I have not
+experience any egregiously long hangs, however. This is documented in issue
+[#8][issue-8].
+
 ## License
 
 This project is licensed under the [MIT license][license].
 
 [default-plugin-dir]:https://docs.binary.ninja/guide/plugins.html
+[token]:https://beta.openai.com/account/api-keys
+[entry]:./entry.py
+[asyncio]:https://docs.python.org/3/library/asyncio.html
+[issue-8]:https://github.com/WhatTheFuzz/binaryninja-openai/issues/8
 [license]:./LICENSE
