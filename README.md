@@ -10,6 +10,14 @@ If you're installing this as a standalone plugin, you can place (or sym-link)
 this in BinaryNinja's plugin path. Default paths are detailed on
 [Vector 35's documentation][default-plugin-dir].
 
+This plugin has been tested on macOS and Linux. It probably works on Windows;
+please submit a pull request if you've test it.
+
+### Dependencies
+
+- Python 3.10+
+- `openai` installed with `pip3 install --user openai`
+
 ## API Key
 
 This requires an [API token from OpenAI][token]. The plugin checks for the API
@@ -76,7 +84,7 @@ This project is licensed under the [MIT license][license].
 
 [default-plugin-dir]:https://docs.binary.ninja/guide/plugins.html
 [token]:https://beta.openai.com/account/api-keys
-[entry]:./entry.py
+[entry]:./src/entry.py
 [asyncio]:https://docs.python.org/3/library/asyncio.html
 [issue-8]:https://github.com/WhatTheFuzz/binaryninja-openai/issues/8
 [license]:./LICENSE
