@@ -33,7 +33,6 @@ load-plugins=
     pylint.extensions.redefined_variable_type,
     pylint.extensions.comparison_placement,
     pylint.extensions.broad_try_clause,
-    pylint.extensions.dict_init_mutate,
 
 # Use multiple processes to speed up Pylint. Specifying 0 will auto-detect the
 # number of processors available to use.
@@ -103,6 +102,8 @@ disable=
     format,
     # We anticipate #3512 where it will become optional
     fixme,
+    consider-alternative-union-syntax,
+    relative-beyond-top-level
 
 
 [REPORTS]
