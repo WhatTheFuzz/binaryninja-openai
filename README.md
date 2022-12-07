@@ -2,7 +2,9 @@
 
 # BinaryNinja-OpenAI
 
-Integrates OpenAI with BinaryNinja via a plugin.
+Integrates OpenAI's GPT3 with BinaryNinja via a plugin. Creates a query asking
+"What does this function do?" followed by the instructions in the High Level IL
+function. Returns the response to the user in Binary Ninja's console.
 
 ## Installation
 
