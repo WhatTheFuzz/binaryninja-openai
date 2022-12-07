@@ -22,6 +22,11 @@
       "Darwin": "pip3 install --user openai. Under your OpenAI account, create an API key and set it to the environment variable OPENAI_API_KEY inside Binary Ninja's Python console.",
       "Linux": "pip3 install --user openai. Under your OpenAI account, create an API key and set it to the environment variable OPENAI_API_KEY inside Binary Ninja's Python console."
    },
+   "dependencies": {
+      "pip": [
+         "openai"
+      ]
+	},
    "version": "1.0.0",
    "minimumbinaryninjaversion": 3200
 }
