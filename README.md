@@ -2,13 +2,23 @@
 
 # BinaryNinja-OpenAI
 
-Integrates OpenAI with BinaryNinja via a plugin.
+Integrates OpenAI's GPT3 with BinaryNinja via a plugin. Creates a query asking
+"What does this function do?" followed by the instructions in the High Level IL
+function. Returns the response to the user in Binary Ninja's console.
 
 ## Installation
 
 If you're installing this as a standalone plugin, you can place (or sym-link)
 this in BinaryNinja's plugin path. Default paths are detailed on
 [Vector 35's documentation][default-plugin-dir].
+
+This plugin has been tested on macOS and Linux. It probably works on Windows;
+please submit a pull request if you've test it.
+
+### Dependencies
+
+- Python 3.10+
+- `openai` installed with `pip3 install --user openai`
 
 ## API Key
 
@@ -76,7 +86,7 @@ This project is licensed under the [MIT license][license].
 
 [default-plugin-dir]:https://docs.binary.ninja/guide/plugins.html
 [token]:https://beta.openai.com/account/api-keys
-[entry]:./entry.py
+[entry]:./src/entry.py
 [asyncio]:https://docs.python.org/3/library/asyncio.html
 [issue-8]:https://github.com/WhatTheFuzz/binaryninja-openai/issues/8
 [license]:./LICENSE
