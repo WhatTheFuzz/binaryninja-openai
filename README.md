@@ -2,18 +2,18 @@
 
 # BinaryNinja-OpenAI
 
-Integrates OpenAI's GPT3 with BinaryNinja via a plugin. Creates a query asking
+Integrates OpenAI's GPT3 with Binary Ninja via a plugin. Creates a query asking
 "What does this function do?" followed by the instructions in the High Level IL
 function. Returns the response to the user in Binary Ninja's console.
 
 ## Installation
 
 If you're installing this as a standalone plugin, you can place (or sym-link)
-this in BinaryNinja's plugin path. Default paths are detailed on
+this in Binary Ninja's plugin path. Default paths are detailed on
 [Vector 35's documentation][default-plugin-dir].
 
 This plugin has been tested on macOS and Linux. It probably works on Windows;
-please submit a pull request if you've test it.
+please submit a pull request if you've tested it.
 
 ### Dependencies
 
