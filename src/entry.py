@@ -2,7 +2,7 @@ from pathlib import Path
 from binaryninja import BinaryView, Function
 from . agent import Agent
 
-API_KEY_PATH = Path.home() / Path('.openai/api_key')
+API_KEY_PATH = Path.home() / Path('.openai/api_key.txt')
 
 # We don't use the bv argument, but it gets passed in by the PluginCommand.
 # pylint: disable=unused-argument

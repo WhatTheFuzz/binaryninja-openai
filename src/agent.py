@@ -9,6 +9,7 @@ from openai.error import APIError
 from binaryninja.lowlevelil import LowLevelILFunction
 from binaryninja.mediumlevelil import MediumLevelILFunction
 from binaryninja.highlevelil import HighLevelILFunction
+from binaryninja import log
 
 from .exceptions import InvalidEngineException
 
@@ -58,11 +59,17 @@ class Agent:
         if os.getenv('OPENAI_API_KEY'):
             return os.getenv('OPENAI_API_KEY')
         if filename:
-            with open(filename, mode='r', encoding='ascii') as api_key_file:
-                return api_key_file.read()
-        else:
-            raise APIError('No API key found. Please set the environment '
-                           'variable OPENAI_API_KEY to your API key.')
+            log.log_info(f'No API key detected under the environment variable '
+                         f'OPENAI_API_KEY. Reading API key from {filename}')
+            try:
+                with open(filename, mode='r', encoding='ascii') as api_key_file:
+                    return api_key_file.read()
+            except FileNotFoundError as error:
+                log.log_error(f'Could not find API key file at {filename}.')
+
+        raise APIError('No API key found. Please set the environment '
+                        'variable OPENAI_API_KEY to your API key, or write '
+                        'it to ~/openai/api_key.txt.')
 
 
     def instruction_list(self, function: Union[LowLevelILFunction,
