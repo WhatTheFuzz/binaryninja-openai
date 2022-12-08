@@ -44,6 +44,23 @@ class OpenAISettings(Settings):
             'title': 'OpenAI Model',
             'type': 'string',
             'description': 'The OpenAI model used to generate the response.',
+            # https://beta.openai.com/docs/models
+            'enum': [
+                'text-davinci-003',
+                'text-curie-001',
+                'text-babbage-001',
+                'text-babbage-002',
+                'code-davinci-002',
+                'code-cushman-001'
+            ],
+            'enumDescriptions': [
+                'Most capable GPT-3 model. Can do any task the other models can do, often with higher quality, longer output and better instruction-following. Also supports inserting completions within text.',
+                'Very capable, but faster and lower cost than Davinci.',
+                'Capable of straightforward tasks, very fast, and lower cost.',
+                'Capable of very simple tasks, usually the fastest model in the GPT-3 series, and lowest cost.',
+                'Most capable Codex model. Particularly good at translating natural language to code. In addition to completing code, also supports inserting completions within code.',
+                'Almost as capable as Davinci Codex, but slightly faster. This speed advantage may make it preferable for real-time applications.'
+            ],
             'default': 'text-davinci-003'
         }
         return self.register_setting('openai.model', json.dumps(properties))
