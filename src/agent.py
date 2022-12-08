@@ -12,8 +12,6 @@ from binaryninja.highlevelil import HighLevelILFunction
 from binaryninja.settings import Settings
 from binaryninja import log
 
-from .exceptions import InvalidEngineException
-
 
 class Agent:
 
@@ -31,7 +29,6 @@ class Agent:
 
     def __init__(self,
                 function: Union[LowLevelILFunction, MediumLevelILFunction, HighLevelILFunction],
-                engine: str,
                 path_to_api_key: Optional[Path]=None) -> None:
 
         # Read the API key from the environment variable.
@@ -142,4 +139,3 @@ class Agent:
             max_tokens=2_048
         )
         return response.choices[0].text
-

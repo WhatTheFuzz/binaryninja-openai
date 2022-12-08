@@ -9,7 +9,6 @@ API_KEY_PATH = Path.home() / Path('.openai/api_key.txt')
 def check_function(bv: BinaryView, func: Function) -> bool:
     agent: Agent = Agent(
         function=func,
-        engine='text-davinci-003',
         path_to_api_key=API_KEY_PATH
     )
     query: str = agent.generate_query(func)
