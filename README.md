@@ -30,7 +30,7 @@ access the entry in Binary Ninja via `Edit > Preferences > Settings > OpenAI`.
 Or, use the hotkey ⌘+, and search for `OpenAI`. You should see customizable
 settings like so.
 
-![Settings](./resources/settings.png)
+![Settings](https://github.com/WhatTheFuzz/binaryninja-openai/blob/main/resources/settings.png?raw=true)
 
 Second, it checks the environment variable `OPENAI_API_KEY`, which you can set
 inside of Binary Ninja's Python console like so:
@@ -71,7 +71,7 @@ inside of the function.
 
 The output will appear in Binary Ninja's Log like so:
 
-![The output of running the plugin.](./resources/output.png)
+![The output of running the plugin.](https://github.com/WhatTheFuzz/binaryninja-openai/blob/main/resources/output.png?raw=true)
 
 ## OpenAI Model
 
