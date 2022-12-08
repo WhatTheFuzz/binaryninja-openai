@@ -3,7 +3,7 @@ from typing import Optional, Union
 from pathlib import Path
 
 import openai
-from openai.api_resources.engine import Engine
+from openai.api_resources.model import Model
 from openai.error import APIError
 
 from binaryninja.lowlevelil import LowLevelILFunction
@@ -45,16 +45,9 @@ class Agent:
                             f'LowLevelILFunction, MediumLevelILFunction, or '
                             f'HighLevelILFunction, got {type(function)}.')
 
-        # Get the list of available engines.
-        engines: list[Engine] = openai.Engine.list().data
-        # Ensure the user's selected engine is available.
-        if engine not in [e.id for e in engines]:
-            InvalidEngineException(f'Invalid engine: {engine}. Valid engines '
-                                   f'are: {[e.id for e in engines]}')
-
         # Set instance attributes.
         self.function = function
-        self.engine = engine
+        self.model = self.get_model()
 
     def read_api_key(self, filename: Optional[Path]=None) -> str:
         '''Checks for the API key in three locations.
@@ -92,6 +85,28 @@ class Agent:
         raise APIError('No API key found. Refer to the documentation to add the '
                        'API key.')
 
+    def is_valid_model(self, model: str) -> bool:
+        '''Checks if the model is valid by querying the OpenAI API.'''
+        models: list[Model] = openai.Model.list().data
+        return model in [m.id for m in models]
+
+    def get_model(self) -> str:
+        '''Returns the model that the user has selected from Binary Ninja's
+        preferences. The default value is set by the OpenAISettings class. If
+        for some reason the user selected a model that doesn't exist, this
+        function defaults to 'text-davinci-003'.
+        '''
+        settings: Settings = Settings()
+        # Check that the key exists.
+        if settings.contains('openai.model'):
+            # Check that the key is not empty and get the user's selection.
+            if model := settings.get_string('openai.model'):
+                # Check that is a valid model by querying the OpenAI API.
+                if self.is_valid_model(model):
+                    return model
+        # Return a valid, default model.
+        assert self.is_valid_model('text-davinci-003')
+        return 'text-davinci-003'
 
     def instruction_list(self, function: Union[LowLevelILFunction,
                                          MediumLevelILFunction,
@@ -122,7 +137,7 @@ class Agent:
     def send_query(self, query: str) -> str:
         '''Sends a query to the engine and returns the response.'''
         response: str = openai.Completion.create(
-            model=self.engine,
+            model=self.model,
             prompt=query,
             max_tokens=2_048
         )
