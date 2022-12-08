@@ -23,9 +23,16 @@ please submit a pull request if you've tested it.
 ## API Key
 
 This requires an [API token from OpenAI][token]. The plugin checks for the API
-key in two ways (in this order).
+key in three ways (in this order).
 
-First, it checks the environment variable `OPENAI_API_KEY`, which you can set
+First, it tries to read the key from Binary Ninja's preferences. You can
+access the entry in Binary Ninja via `Edit > Preferences > Settings > OpenAI`.
+Or, use the hotkey ⌘+, and search for `OpenAI`. You should see customizable
+settings like so.
+
+![Settings](./resources/settings.png)
+
+Second, it checks the environment variable `OPENAI_API_KEY`, which you can set
 inside of Binary Ninja's Python console like so:
 
 ```python
@@ -42,8 +49,8 @@ mkdir ~/.openai
 echo -n "INSERT KEY HERE" > ~/.openai/api_key.txt
 ```
 
-Note that if you have both set, the plugin defaults to the environment variable.
-If your API token is invalid, you'll receive the following error:
+Note that if you have all three set, the plugin defaults to one set in Binary
+Ninja. If your API token is invalid, you'll receive the following error:
 
 ```python
 openai.error.AuthenticationError: Incorrect API key provided: <BAD KEY HERE>.
@@ -69,7 +76,9 @@ The output will appear in Binary Ninja's Log like so:
 ## OpenAI Model
 
 By default, the plugin uses the `text-davinci-003` model, you can tweak this
-inside of [entry.py][entry].
+inside Binary Ninja's preferences. You can access these settings as described in
+the [API Key](#api-key) section. It uses the maximum available number of tokens
+for each model, as described in [OpenAI's documentation][tokens].
 
 ## Known Issues
 
@@ -86,6 +95,7 @@ This project is licensed under the [MIT license][license].
 
 [default-plugin-dir]:https://docs.binary.ninja/guide/plugins.html
 [token]:https://beta.openai.com/account/api-keys
+[tokens]:https://beta.openai.com/docs/models/gpt-3
 [entry]:./src/entry.py
 [asyncio]:https://docs.python.org/3/library/asyncio.html
 [issue-8]:https://github.com/WhatTheFuzz/binaryninja-openai/issues/8
