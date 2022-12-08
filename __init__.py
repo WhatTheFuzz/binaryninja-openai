@@ -1,5 +1,9 @@
 from binaryninja import PluginCommand
+from . src.settings import OpenAISettings
 from . src.entry import check_function
+
+# Register the settings group in Binary Ninja to store the API key and model.
+OpenAISettings()
 
 PluginCommand.register_for_high_level_il_function("OpenAI\What Does this Function Do (HLIL)?",
                             "Checks OpenAI to see what this HLIL function does." \

@@ -1,4 +1,5 @@
-from openai.error import OpenAIError
+class RegisterSettingsGroupException(Exception):
+    pass
 
-class InvalidEngineException(OpenAIError):
+class RegisterSettingsKeyException(Exception):
     pass
