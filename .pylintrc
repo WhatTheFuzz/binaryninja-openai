@@ -103,7 +103,10 @@ disable=
     # We anticipate #3512 where it will become optional
     fixme,
     consider-alternative-union-syntax,
-    relative-beyond-top-level
+    relative-beyond-top-level,
+    # Remove import error for clients without the Binary Ninja plugin installed,
+    # as in non-commercial settings.
+    import-error
 
 
 [REPORTS]
