@@ -9,6 +9,7 @@ from openai.error import APIError
 from binaryninja.lowlevelil import LowLevelILFunction
 from binaryninja.mediumlevelil import MediumLevelILFunction
 from binaryninja.highlevelil import HighLevelILFunction
+from binaryninja.settings import Settings
 from binaryninja import log
 
 from .exceptions import InvalidEngineException
@@ -56,20 +57,40 @@ class Agent:
         self.engine = engine
 
     def read_api_key(self, filename: Optional[Path]=None) -> str:
-        if os.getenv('OPENAI_API_KEY'):
-            return os.getenv('OPENAI_API_KEY')
+        '''Checks for the API key in three locations.
+
+        First, it checks the openai.api_key key:value in Binary Ninja
+        preferences. This is accessed in Binary Ninja by going to Edit >
+        Preferences > Settings > OpenAI.
+        Second, it checks the OPENAI_API_KEY environment variable.
+        Finally, it checks the file specified by the filename argument.
+        Defaults to ~/.openai/api_key.txt.
+        '''
+
+        # First, check the Binary Ninja settings.
+        settings: Settings = Settings()
+        if settings.contains('openai.api_key'):
+            if key := settings.get_string('openai.api_key'):
+                return key
+
+        # If the settings don't exist, contain the key, or the key is empty,
+        # check the environment variable.
+        if key := os.getenv('OPENAI_API_KEY'):
+            return key
+
+        # Finally, if the environment variable doesn't exist, check the default
+        # file.
         if filename:
             log.log_info(f'No API key detected under the environment variable '
                          f'OPENAI_API_KEY. Reading API key from {filename}')
             try:
                 with open(filename, mode='r', encoding='ascii') as api_key_file:
                     return api_key_file.read()
-            except FileNotFoundError as error:
+            except FileNotFoundError:
                 log.log_error(f'Could not find API key file at {filename}.')
 
-        raise APIError('No API key found. Please set the environment '
-                        'variable OPENAI_API_KEY to your API key, or write '
-                        'it to ~/openai/api_key.txt.')
+        raise APIError('No API key found. Refer to the documentation to add the '
+                       'API key.')
 
 
     def instruction_list(self, function: Union[LowLevelILFunction,
