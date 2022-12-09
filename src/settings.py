@@ -22,6 +22,12 @@ class OpenAISettings(Settings):
             raise RegisterSettingsKeyException('Failed to register OpenAI '
                                                'model settings.')
 
+        # Register the setting for the max tokens used for both the prompt and
+        # completion.
+        if not self.register_max_tokens():
+            raise RegisterSettingsKeyException('Failed to register OpenAI '
+                                               'max tokens settings.')
+
     def register_api_key_settings(self) -> bool:
         '''Register the OpenAI API key settings in Binary Ninja.'''
         # Set the attributes of the settings. Refer to:
@@ -64,3 +70,22 @@ class OpenAISettings(Settings):
             'default': 'text-davinci-003'
         }
         return self.register_setting('openai.model', json.dumps(properties))
+
+    def register_max_tokens(self) -> bool:
+        '''Register the OpenAI max tokens used for both the prompt and
+        completion. Defaults to 2,048. The Davinci model can use 4,000 or 8,000
+        tokens for GPT and Codex respectively. Check out the documentation here:
+        https://help.openai.com/en/articles/4936856-what-are-tokens-and-how-to-count-them
+        '''
+
+        properties = {
+            'title': 'OpenAI Max Completion Tokens',
+            'type': 'number',
+            'description': 'The maximum number of tokens used for completion. Tokens do not necessarily align with word or instruction count. Typically, each token is four characters. If your function is very large, you may need to decrease this value, as the number of tokens in your prompt counts against the total number of tokens supported by the model. Not all models support the same number of maximum tokens; most support 2,048 tokens. For larger functions, check out text-davinci-003 and code-davinci-002 which support 4,000 and 8,000 respectively.',
+            'default': 1_024,
+            'minValue': 1,
+            'maxValue': 8_000,
+            'message': "Min: 1, Max: 8,000"
+        }
+        return self.register_setting('openai.max_tokens',
+                                     json.dumps(properties))
