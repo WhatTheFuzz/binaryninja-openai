@@ -82,12 +82,7 @@ for each model, as described in [OpenAI's documentation][tokens].
 
 ## Known Issues
 
-The query does not use Python's [asyncio][asyncio] and thus blocks the main
-thread. You may be unable to interact with the Binary Ninja UI while the query
-is waiting to be resolved. In some cases, your operating system may detect that
-Binary Ninja has stopped responding and ask you to Force Quit it. I have not
-experience any egregiously long hangs, however. This is documented in issue
-[#8][issue-8].
+Please submit an issue if you find something that isn't working properly.
 
 ## License
 
@@ -97,6 +92,4 @@ This project is licensed under the [MIT license][license].
 [token]:https://beta.openai.com/account/api-keys
 [tokens]:https://beta.openai.com/docs/models/gpt-3
 [entry]:./src/entry.py
-[asyncio]:https://docs.python.org/3/library/asyncio.html
-[issue-8]:https://github.com/WhatTheFuzz/binaryninja-openai/issues/8
 [license]:./LICENSE

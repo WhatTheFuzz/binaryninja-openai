@@ -12,6 +12,8 @@ from binaryninja.highlevelil import HighLevelILFunction
 from binaryninja.settings import Settings
 from binaryninja import log
 
+from . query import Query
+
 
 class Agent:
 
@@ -142,11 +144,9 @@ class Agent:
         prompt += '\n'.join(self.instruction_list(function))
         return prompt
 
-    def send_query(self, query: str) -> str:
-        '''Sends a query to the engine and returns the response.'''
-        response: str = openai.Completion.create(
-            model=self.model,
-            prompt=query,
-            max_tokens=self.get_token_count(),
-        )
-        return response.choices[0].text
+    def send_query(self, query: str) -> None:
+        '''Sends a query to the engine and prints the response.'''
+        query = Query(query_string=query,
+                      model=self.model,
+                      max_token_count=self.get_token_count())
+        query.start()
