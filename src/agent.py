@@ -6,31 +6,36 @@ import openai
 from openai.api_resources.model import Model
 from openai.error import APIError
 
+from binaryninja.function import Function
 from binaryninja.lowlevelil import LowLevelILFunction
 from binaryninja.mediumlevelil import MediumLevelILFunction
 from binaryninja.highlevelil import HighLevelILFunction
 from binaryninja.settings import Settings
-from binaryninja import log
+from binaryninja import log, BinaryView
 
 from . query import Query
+from . c import Pseudo_C
 
 
 class Agent:
 
     question: str = '''
     This is a function that was decompiled with Binary Ninja.
-    It is in Binary Ninja's IL_FORM. What does this function do?
+    It is in IL_FORM. What does this function do?
     '''
 
     # A mapping of IL forms to their names.
     il_name: dict[type, str] = {
         LowLevelILFunction: 'Low Level Intermediate Language',
         MediumLevelILFunction: 'Medium Level Intermediate Language',
-        HighLevelILFunction: 'High Level Intermediate Language'
+        HighLevelILFunction: 'High Level Intermediate Language',
+        Function: 'decompiled C code'
     }
 
     def __init__(self,
-                function: Union[LowLevelILFunction, MediumLevelILFunction, HighLevelILFunction],
+                bv: BinaryView,
+                function: Union[Function, LowLevelILFunction,
+                                MediumLevelILFunction, HighLevelILFunction],
                 path_to_api_key: Optional[Path]=None) -> None:
 
         # Read the API key from the environment variable.
@@ -39,12 +44,16 @@ class Agent:
         # Ensure that a function type was passed in.
         if not isinstance(
                 function,
-            (LowLevelILFunction, MediumLevelILFunction, HighLevelILFunction)):
+            (Function, LowLevelILFunction, MediumLevelILFunction,
+                                                HighLevelILFunction)):
             raise TypeError(f'Expected a BNIL function of type '
-                            f'LowLevelILFunction, MediumLevelILFunction, or '
-                            f'HighLevelILFunction, got {type(function)}.')
+                            f'Function, LowLevelILFunction, '
+                            f'MediumLevelILFunction, or HighLevelILFunction, '
+                            f'got {type(function)}.')
 
+        assert bv is not None, 'BinaryView is None. Check how you called this function.'
         # Set instance attributes.
+        self.bv = bv
         self.function = function
         self.model = self.get_model()
 
@@ -124,14 +133,17 @@ class Agent:
         '''Generates a list of instructions in string representation given a
         BNIL function.
         '''
+        if isinstance(function, Function):
+            return Pseudo_C(self.bv, function).get_c_source()
         instructions: list[str] = []
         for instruction in function.instructions:
             instructions.append(str(instruction))
         return instructions
 
-    def generate_query(self, function: Union[LowLevelILFunction,
-                                       MediumLevelILFunction,
-                                       HighLevelILFunction]) -> str:
+    def generate_query(self, function: Union[Function,
+                                            LowLevelILFunction,
+                                            MediumLevelILFunction,
+                                            HighLevelILFunction]) -> str:
         '''Generates a query string given a BNIL function. Reads the file
         prompt.txt and replaces the IL form with the name of the IL form.
         '''

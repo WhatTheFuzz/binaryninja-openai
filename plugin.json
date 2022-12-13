@@ -19,14 +19,14 @@
       "Linux"
    ],
    "installinstructions": {
-      "Darwin": "pip3 install --user openai. Under your OpenAI account, create an API key and set it to the environment variable OPENAI_API_KEY inside Binary Ninja's Python console.",
-      "Linux": "pip3 install --user openai. Under your OpenAI account, create an API key and set it to the environment variable OPENAI_API_KEY inside Binary Ninja's Python console."
+      "Darwin": "`pip3 install --user openai`.\n Add your OpenAI API key to the OpenAI preferences in Binary Ninja.",
+      "Linux": "`pip3 install --user openai`.\n Add your OpenAI API key to the OpenAI preferences in Binary Ninja."
    },
    "dependencies": {
       "pip": [
          "openai"
       ]
 	},
-   "version": "1.3.0",
+   "version": "1.4.0",
    "minimumbinaryninjaversion": 3200
 }
