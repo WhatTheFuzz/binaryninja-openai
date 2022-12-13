@@ -4,7 +4,8 @@
 
 Integrates OpenAI's GPT3 with Binary Ninja via a plugin. Creates a query asking
 "What does this function do?" followed by the instructions in the High Level IL
-function. Returns the response to the user in Binary Ninja's console.
+function or the decompiled pseudo-C. Returns the response to the user in Binary
+Ninja's console.
 
 ## Installation
 
