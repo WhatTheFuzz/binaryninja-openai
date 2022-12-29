@@ -1,5 +1,7 @@
+from __future__ import annotations
+from collections.abc import Callable
 import os
-from typing import Callable, Optional, Union
+from typing import Optional, Union
 from pathlib import Path
 
 import openai
@@ -67,7 +69,7 @@ class Agent:
         settings: Settings = Settings()
         if settings.contains('openai.api_key'):
             if key := settings.get_string('openai.api_key'):
-                return key
+                return str(key)
 
         # If the settings don't exist, contain the key, or the key is empty,
         # check the environment variable.
@@ -106,7 +108,7 @@ class Agent:
             if model := settings.get_string('openai.model'):
                 # Check that is a valid model by querying the OpenAI API.
                 if self.is_valid_model(model):
-                    return model
+                    return str(model)
         # Return a valid, default model.
         assert self.is_valid_model('text-davinci-003')
         return 'text-davinci-003'
@@ -119,7 +121,7 @@ class Agent:
         if settings.contains('openai.max_tokens'):
             # Check that the value is not None.
             if (max_tokens := settings.get_integer('openai.max_tokens')) is not None:
-                return max_tokens
+                return int(max_tokens)
         return 1_024
 
     def instruction_list(self, function: Union[LowLevelILFunction,
@@ -161,7 +163,7 @@ class Agent:
         return prompt
 
     def generate_rename_variable_query(self,
-                                    instruction: HighLevelILInstruction) -> Optional[str]:
+                                    instruction: HighLevelILInstruction) -> str:
         '''Generates a query string given a BNIL instruction. Returns the query
         as a string.
         '''

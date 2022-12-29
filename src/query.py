@@ -1,12 +1,14 @@
+from __future__ import annotations
+from collections.abc import Callable
+from typing import Optional
 import openai
-from typing import Callable
 from binaryninja.plugin import BackgroundTaskThread
-from binaryninja.log import log_debug
+from binaryninja.log import log_debug, log_info
 
 class Query(BackgroundTaskThread):
 
     def __init__(self, query_string: str, model: str,
-                 max_token_count: int, callback_function: Callable=None) -> None:
+                 max_token_count: int, callback_function: Optional[Callable]=None) -> None:
         BackgroundTaskThread.__init__(self,
                                       initial_progress_text="",
                                       can_cancel=False)
@@ -20,16 +22,16 @@ class Query(BackgroundTaskThread):
 
         log_debug(f'Sending query: {self.query_string}')
 
-        response: str = openai.Completion.create(
+        response = openai.Completion.create(
             model=self.model,
             prompt=self.query_string,
             max_tokens=self.max_token_count,
         )
         # Get the response text.
-        response: str = response.choices[0].text
+        result: str = response.choices[0].text
         # If there is a callback, do something with it.
         if self.callback:
-            self.callback(response)
+            self.callback(result)
         # Otherwise, assume we just want to log it.
         else:
-            log_info(response)
+            log_info(result)
