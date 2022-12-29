@@ -1,8 +1,7 @@
 import openai
 from typing import Callable
 from binaryninja.plugin import BackgroundTaskThread
-from binaryninja.highlevelil import HighLevelILInstruction
-from binaryninja.log import log_info
+from binaryninja.log import log_debug
 
 class Query(BackgroundTaskThread):
 
@@ -18,6 +17,8 @@ class Query(BackgroundTaskThread):
 
     def run(self) -> None:
         self.progress = "Submitting query to OpenAI."
+
+        log_debug(f'Sending query: {self.query_string}')
 
         response: str = openai.Completion.create(
             model=self.model,
