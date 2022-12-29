@@ -89,9 +89,9 @@ to see if OpenAI can assist with that. Right click on an instruction where a
 variable is initialized and select `OpenAI > Rename Variable (HLIL)`. Watch the
 magic happen. Here's a quick before-and-after.
 
-![Before renaming](resources/rename-before.png)
+![Before renaming](https://github.com/WhatTheFuzz/binaryninja-openai/blob/main/resources/rename-before.png?raw=true)
 
-![After renaming](resources/rename-after.png)
+![After renaming](https://github.com/WhatTheFuzz/binaryninja-openai/blob/main/resources/rename-after.png?raw=true)
 
 Renaming variables only works on HLIL instructions that are initializations (ie.
 `HighLevelILVarInit`). You might also want this to support assignments
