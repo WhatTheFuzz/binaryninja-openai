@@ -34,27 +34,14 @@ class Agent:
 
     def __init__(self,
                 bv: BinaryView,
-                function: Union[Function, LowLevelILFunction,
-                                MediumLevelILFunction, HighLevelILFunction],
                 path_to_api_key: Optional[Path]=None) -> None:
 
         # Read the API key from the environment variable.
         openai.api_key = self.read_api_key(path_to_api_key)
 
-        # Ensure that a function type was passed in.
-        if not isinstance(
-                function,
-            (Function, LowLevelILFunction, MediumLevelILFunction,
-                                                HighLevelILFunction)):
-            raise TypeError(f'Expected a BNIL function of type '
-                            f'Function, LowLevelILFunction, '
-                            f'MediumLevelILFunction, or HighLevelILFunction, '
-                            f'got {type(function)}.')
-
         assert bv is not None, 'BinaryView is None. Check how you called this function.'
         # Set instance attributes.
         self.bv = bv
-        self.function = function
         self.model = self.get_model()
 
     def read_api_key(self, filename: Optional[Path]=None) -> str:
@@ -133,6 +120,15 @@ class Agent:
         '''Generates a list of instructions in string representation given a
         BNIL function.
         '''
+
+        # Ensure that a function type was passed in.
+        if not isinstance(function, (Function, LowLevelILFunction,
+                            MediumLevelILFunction, HighLevelILFunction)):
+            raise TypeError(f'Expected a BNIL function of type '
+                            f'Function, LowLevelILFunction, '
+                            f'MediumLevelILFunction, or HighLevelILFunction, '
+                            f'got {type(function)}.')
+
         if isinstance(function, Function):
             return Pseudo_C(self.bv, function).get_c_source()
         instructions: list[str] = []
