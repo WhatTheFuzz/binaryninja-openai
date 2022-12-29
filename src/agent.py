@@ -189,8 +189,14 @@ class Agent:
             raise TypeError('No instruction was saved in the Agent instance.')
         if response is None or response == '':
             raise TypeError(f'No response was returned from OpenAI; got type {type(response)}.')
-        # Get just one word from the response.
-        response = response.split()[0]
+        # Get just one word from the response. Remove spaces and quotes.
+        try:
+            response = response.split()[0]
+            response = response.replace(' ', '')
+            response = response.replace('"', '')
+            response = response.replace('\'', '')
+        except IndexError as error:
+            raise IndexError(f'Could not split the response: `{response}`.') from error
         # Assign the variable name to the response.
         log.log_debug(f'Renaming variable in expression {self.instruction} to {response}.')
         self.instruction.dest.name = response
