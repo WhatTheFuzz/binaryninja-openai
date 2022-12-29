@@ -2,10 +2,13 @@
 
 # BinaryNinja-OpenAI
 
-Integrates OpenAI's GPT3 with Binary Ninja via a plugin. Creates a query asking
-"What does this function do?" followed by the instructions in the High Level IL
-function or the decompiled pseudo-C. Returns the response to the user in Binary
-Ninja's console.
+Integrates OpenAI's GPT3 with Binary Ninja via a plugin and currently supports
+two actions:
+
+- Queries OpenAI to determine what a given function does (in Pseudo-C and HLIL).
+  - The results are logged to Binary Ninja's log to assist with RE.
+- Allows users to rename variables in HLIL using OpenAI.
+  - Variable are renamed immediately and the decompiler is reloaded.
 
 ## Installation
 
@@ -60,19 +63,41 @@ You can find your API key at https://beta.openai.com.
 
 ## Usage
 
+### What Does this Function Do?
+
 After installation, you can right-click on any function in Binary Ninja and
-select `Plugins > OpenAI > What Does this Function Do (HLIL)?`. Alternatively,
-select a function in Binary Ninja (by clicking on any instruction in the
-function) and use the menu bar options
-`Plugins > OpenAI > What Does this Function Do (HLIL)?`. If your cursor has
-anything else selected other than an instruction inside a function, `OpenAI`
-will not appear as a selection inside the `Plugins` menu. This can happen if
-you've selected data or instructions that Binary Ninja determined did not belong
-inside of the function.
+select `Plugins > OpenAI > What Does this Function Do (HLIL/Pseudo-C)?`.
+Alternatively, select a function in Binary Ninja (by clicking on any instruction
+in the function) and use the menu bar options `Plugins > OpenAI > ...`. If your
+cursor has anything else selected other than an instruction inside a function,
+`OpenAI` will not appear as a selection inside the `Plugins` menu. This can
+happen if you've selected data or instructions that Binary Ninja determined did
+not belong inside of the function. Additionally, the HLIL options are context
+sensitive; if you're looking at the decompiled results in LLIL, you will not see
+the HLIL options; this is easily fixed by changing the user view to HLIL
+(Pseudo-C should always be visible).
 
 The output will appear in Binary Ninja's Log like so:
 
 ![The output of running the plugin.](https://github.com/WhatTheFuzz/binaryninja-openai/blob/main/resources/output.png?raw=true)
+
+### Renaming Variables
+
+I feel like half of reverse engineering is figuring out variable names (which
+in-turn assist with program understanding). This plugin is an experimental look
+to see if OpenAI can assist with that. Right click on an instruction where a
+variable is initialized and select `OpenAI > Rename Variable (HLIL)`. Watch the
+magic happen. Here's a quick before-and-after.
+
+![Before renaming](https://github.com/WhatTheFuzz/binaryninja-openai/blob/main/resources/rename-before.png?raw=true)
+
+![After renaming](https://github.com/WhatTheFuzz/binaryninja-openai/blob/main/resources/rename-after.png?raw=true)
+
+Renaming variables only works on HLIL instructions that are initializations (ie.
+`HighLevelILVarInit`). You might also want this to support assignments
+(`HighLevelILAssign`), but I did not get great results with this. Most of the
+responses were just `result`. If your experience is different, please submit a
+pull request.
 
 ## OpenAI Model
 
