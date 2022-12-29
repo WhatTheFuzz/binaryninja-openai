@@ -1,7 +1,7 @@
 from binaryninja import PluginCommand
 from . src.settings import OpenAISettings
-from . src.entry import check_function
-from . src.entry import rename_expression
+from . src.entry import check_function, rename_variable, \
+                        rename_all_variables_in_function
 
 # Register the settings group in Binary Ninja to store the API key and model.
 OpenAISettings()
@@ -20,10 +20,13 @@ PluginCommand.register_for_function("OpenAI\What Does this Function Do (Pseudo-C
                             "OPENAI_API_KEY or modify the path in entry.py.",
                             check_function)
 
-PluginCommand.register_for_high_level_il_instruction("OpenAI\Rename Variable",
+PluginCommand.register_for_high_level_il_instruction("OpenAI\Rename Variable (HLIL)",
                             "If the current expression is a HLIL Initialization " \
                             "(HighLevelILVarInit), then query OpenAI to rename the " \
                             "variable to what it believes is correct. If the expression" \
                             "is not an HighLevelILVarInit, then do nothing. Requires " \
                             "an internet connection and an API key. ",
-                            rename_expression)
+                            rename_variable)
+
+PluginCommand.register_for_high_level_il_function("OpenAI\Rename All Variables (HLIL)",
+"", rename_all_variables_in_function)
