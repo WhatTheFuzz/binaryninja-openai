@@ -14,4 +14,8 @@ def check_function(bv: BinaryView, func: Function) -> bool:
     agent.send_query(query)
 
 def rename_expression(bv: BinaryView, instruction: HighLevelILInstruction) -> bool:
-    pass
+    agent: Agent = Agent(
+        bv=bv,
+        path_to_api_key=API_KEY_PATH
+    )
+    query: str = agent.generate_rename_expression_query(instruction)

@@ -9,7 +9,7 @@ from openai.error import APIError
 from binaryninja.function import Function
 from binaryninja.lowlevelil import LowLevelILFunction
 from binaryninja.mediumlevelil import MediumLevelILFunction
-from binaryninja.highlevelil import HighLevelILFunction
+from binaryninja.highlevelil import HighLevelILFunction, HighLevelILInstruction
 from binaryninja.settings import Settings
 from binaryninja import log, BinaryView
 
@@ -19,9 +19,14 @@ from . c import Pseudo_C
 
 class Agent:
 
-    question: str = '''
+    function_question: str = '''
     This is a function that was decompiled with Binary Ninja.
     It is in IL_FORM. What does this function do?
+    '''
+
+    rename_variable_question: str = '''
+    In one word, what should the variable name be for the variable that is
+    assigned to the result of the C expression:\n
     '''
 
     # A mapping of IL forms to their names.
@@ -140,17 +145,24 @@ class Agent:
                                             LowLevelILFunction,
                                             MediumLevelILFunction,
                                             HighLevelILFunction]) -> str:
-        '''Generates a query string given a BNIL function. Reads the file
-        prompt.txt and replaces the IL form with the name of the IL form.
+        '''Generates a query string given a BNIL function. Returns the query as
+        a string.
         '''
-        prompt: str = self.question
+        prompt: str = self.function_question
         # Read the prompt from the text file.
-        prompt = self.question.replace('IL_FORM', self.il_name[type(function)])
+        prompt = prompt.replace('IL_FORM', self.il_name[type(function)])
         # Add some new lines. Maybe not necessary.
         prompt += '\n\n'
         # Add the instructions to the prompt.
         prompt += '\n'.join(self.instruction_list(function))
         return prompt
+
+    def generate_rename_expression_query(
+                                    instruction: HighLevelILInstruction) -> str:
+        '''Generates a query string given a BNIL instruction. Returns the query
+        as a string.
+        '''
+        pass
 
     def send_query(self, query: str) -> None:
         '''Sends a query to the engine and prints the response.'''
