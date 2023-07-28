@@ -27,10 +27,14 @@ class Agent:
     It is in IL_FORM. What does this function do?
     '''
 
-    rename_variable_question: str = "In one word, what should the variable " \
-        "be for the variable that is assigned to the result of the C " \
-        "expression:\n"
-
+    rename_variable_question: str = "In one word, answer me in ONE word, how should" \
+        " the variable {} be named in this decompiled function?"
+    
+    rename_all_variables_question: str = "I will now give you a list of variables in a specific order. The variables will be separeted with a comma."\
+        " I want you to find name that suits each variable's purpose in the function. You can use the following format: 'variable_name1:new_name1,variable_name2:new_name2,...'."\
+        " For example, if you want to rename the variable 'a' to 'b' and 'c' to 'd', you should write 'a:b,c:d'."\
+        " Do not inclue anything else in your answer."\
+        " VERY IMPORTANT! You have to rename ALL the variables in the function, and use the EXACT SAME NAME AND ORDER."\
 
     # A mapping of IL forms to their names.
     il_name: dict[type, str] = {
@@ -176,11 +180,26 @@ class Agent:
         # versions.
         self.instruction = instruction
 
-        prompt: str = self.rename_variable_question
+        prompt: str = self.rename_variable_question.format(instruction.dest.name)
         # Get the disassembly lines and add them to the prompt.
-        for line in instruction.instruction_operands:
-            prompt += str(line)
-
+        # Add some new lines. Maybe not necessary.
+        prompt += '\n\n'
+        # Add the instructions to the prompt.
+        prompt += '\n'.join(self.instruction_list(instruction.function))
+        return prompt
+    
+    def generate_rename_all_variables_query(self, function: HighLevelILFunction) -> str:
+        prompt: str = self.rename_all_variables_question
+        self.function = function
+        # Add the variables list
+        prompt += ", ".join([var.name for var in function.vars])
+        # Get the disassembly lines and add them to the prompt.
+        # Add some new lines. Maybe not necessary.
+        prompt += '\n\n'
+        # Add the instructions to the prompt.
+        prompt += '\n'.join(self.instruction_list(function))
+        prompt += "\n\n"
+        prompt += "Remember! You have to find a name that suits the variable purpose and explicitely describes what it represents in the logic flow. Use actual words! You also have to rename all of these variabes: "+", ".join([var.name for var in function.vars])
         return prompt
 
     def rename_variable(self, response: str) -> None:
@@ -202,6 +221,28 @@ class Agent:
         # Assign the variable name to the response.
         log.log_debug(f'Renaming variable in expression {self.instruction} to {response}.')
         self.instruction.dest.name = response
+
+    def rename_all_variables(self, response: str) -> None:
+        '''Renames all variables in the function to the response passed in as an argument.
+        '''
+        if response is None or response == '':
+            raise TypeError(f'No response was returned from OpenAI; got type {type(response)}.')
+        # Get just one word from the response. Remove spaces and quotes.
+        resarr = []
+        try:
+            response = response.replace(' ', '').replace('"', '').replace('\'', '').replace('\n', ',')
+            response = response.split(',')
+            for i in response:
+                if ":" in i:
+                    resarr.append(i.split(":")[1])
+        except IndexError as error:
+            raise IndexError(f'Could not split the response: `{response}`.') from error
+        # Assign the variable name to the response.
+        log.log_debug(f'Renaming all variables in function {self.function} to {response}.')
+        i = 0
+        for var in self.function.vars:
+            var.name = resarr[i]
+            i += 1
 
 
     def send_query(self, query: str, callback: Optional[Callable]=None) -> None:

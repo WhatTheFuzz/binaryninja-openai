@@ -19,8 +19,6 @@ class Query(BackgroundTaskThread):
 
     def run(self) -> None:
         self.progress = "Submitting query to OpenAI."
-
-        log_debug(f'Sending query: {self.query_string}')
         if self.model in ["gpt-3.5-turbo","gpt-4","gpt-4-32k"]:
             response = openai.ChatCompletion.create(
                 model=self.model,
