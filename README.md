@@ -1,3 +1,13 @@
+nobrainer use:
+```
+cd ~/.binaryninja/plugins/
+pip3 install openai
+git clone https://github.com/pilvar222/binaryninja-openai
+```
+and set your api key in Edit->Preferences->Settings and search OpenAI, don't hesitate to also set a limit on your account so you don't get a aws-like surprise bill at the end of the month in case something fails lol 
+
+Below is the original README
+
 [![CodeQL](https://github.com/WhatTheFuzz/binaryninja-openai/actions/workflows/codeql.yml/badge.svg)](https://github.com/WhatTheFuzz/binaryninja-openai/actions/workflows/codeql.yml)
 
 # BinaryNinja-OpenAI
