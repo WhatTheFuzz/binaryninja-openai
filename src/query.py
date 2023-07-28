@@ -21,14 +21,22 @@ class Query(BackgroundTaskThread):
         self.progress = "Submitting query to OpenAI."
 
         log_debug(f'Sending query: {self.query_string}')
-
-        response = openai.Completion.create(
-            model=self.model,
-            prompt=self.query_string,
-            max_tokens=self.max_token_count,
-        )
-        # Get the response text.
-        result: str = response.choices[0].text
+        if self.model in ["gpt-3.5-turbo","gpt-4","gpt-4-32k"]:
+            response = openai.ChatCompletion.create(
+                model=self.model,
+                messages=[{"role":"user","content":self.query_string}],
+                max_tokens=self.max_token_count,
+            )
+            # Get the response text.
+            result: str = response.choices[0].message.content
+        else:
+            response = openai.Completion.create(
+                model=self.model,
+                prompt=self.query_string,
+                max_tokens=self.max_token_count,
+            )
+            # Get the response text.
+            result: str = response.choices[0].text
         # If there is a callback, do something with it.
         if self.callback:
             self.callback(result)
