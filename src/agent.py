@@ -5,8 +5,7 @@ from typing import Optional, Union
 from pathlib import Path
 
 import openai
-from openai.api_resources.model import Model
-from openai.error import APIError
+from openai import APIError
 
 from binaryninja.function import Function
 from binaryninja.lowlevelil import LowLevelILFunction
@@ -18,6 +17,7 @@ from binaryninja import log, BinaryView
 
 from . query import Query
 from . c import Pseudo_C
+from . exceptions import NoAPIKeyException
 
 
 class Agent:
@@ -45,7 +45,7 @@ class Agent:
                 path_to_api_key: Optional[Path]=None) -> None:
 
         # Read the API key from the environment variable.
-        openai.api_key = self.read_api_key(path_to_api_key)
+        self.client = openai.OpenAI(api_key=self.read_api_key(filename=path_to_api_key))
 
         assert bv is not None, 'BinaryView is None. Check how you called this function.'
         # Set instance attributes.
@@ -87,12 +87,12 @@ class Agent:
             except FileNotFoundError:
                 log.log_error(f'Could not find API key file at {filename}.')
 
-        raise APIError('No API key found. Refer to the documentation to add the '
+        raise NoAPIKeyException('No API key found. Refer to the documentation to add the '
                        'API key.')
 
     def is_valid_model(self, model: str) -> bool:
         '''Checks if the model is valid by querying the OpenAI API.'''
-        models: list[Model] = openai.Model.list().data
+        models: list = self.client.models.list().data
         return model in [m.id for m in models]
 
     def get_model(self) -> str:
@@ -206,7 +206,8 @@ class Agent:
 
     def send_query(self, query: str, callback: Optional[Callable]=None) -> None:
         '''Sends a query to the engine and prints the response.'''
-        query = Query(query_string=query,
+        query = Query(client=self.client,
+                      query_string=query,
                       model=self.model,
                       max_token_count=self.get_token_count(),
                       callback_function=callback)

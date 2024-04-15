@@ -1,17 +1,18 @@
 from __future__ import annotations
 from collections.abc import Callable
 from typing import Optional
-import openai
+from openai import Client
 from binaryninja.plugin import BackgroundTaskThread
 from binaryninja.log import log_debug, log_info
 
 class Query(BackgroundTaskThread):
 
-    def __init__(self, query_string: str, model: str,
+    def __init__(self, client: Client, query_string: str, model: str,
                  max_token_count: int, callback_function: Optional[Callable]=None) -> None:
         BackgroundTaskThread.__init__(self,
                                       initial_progress_text="",
                                       can_cancel=False)
+        self.client: Client = client
         self.query_string: str = query_string
         self.model: str = model
         self.max_token_count: int = max_token_count
@@ -23,7 +24,7 @@ class Query(BackgroundTaskThread):
         log_debug(f'Sending query: {self.query_string}')
 
         if self.model in ["gpt-3.5-turbo","gpt-4","gpt-4-32k"]:
-            response = openai.ChatCompletion.create(
+            response = self.client.chat.completions.create(
                 model=self.model,
                 messages=[{"role":"user","content":self.query_string}],
                 max_tokens=self.max_token_count,
@@ -31,7 +32,7 @@ class Query(BackgroundTaskThread):
             # Get the response text.
             result: str = response.choices[0].message.content
         else:
-            response = openai.Completion.create(
+            response = self.client.chat.completions.create(
                 model=self.model,
                 prompt=self.query_string,
                 max_tokens=self.max_token_count,
